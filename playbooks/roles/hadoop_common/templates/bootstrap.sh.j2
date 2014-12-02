@@ -1,0 +1,11 @@
+#!/bin/bash
+
+sudo /etc/init.d/ssh start
+
+ansible-playbook -c local create_user.yml -e "user=$GITHUB_USERNAME" -e "give_sudo=true"
+
+echo "Pres CTRL+C to stop..."
+for (( ; ; ))
+do
+   sleep 1
+done

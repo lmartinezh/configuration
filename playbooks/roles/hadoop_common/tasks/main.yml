@@ -1,0 +1,110 @@
+---
+#
+# edX Configuration
+#
+# github:     https://github.com/edx/configuration
+# wiki:       https://github.com/edx/configuration/wiki
+# code style: https://github.com/edx/configuration/wiki/Ansible-Coding-Conventions
+# license:    https://github.com/edx/configuration/blob/master/LICENSE.TXT
+#
+#
+#
+# Tasks for role hadoop_tasktracker
+# 
+# Overview:
+# 
+#
+# Dependencies:
+#
+# 
+# Example play:
+#
+#
+
+- name: install system packages
+  apt: >
+    pkg={{ ','.join(hadoop_common_debian_pkgs) }}
+    state=present
+
+- name: ensure group exists
+  group: name={{ hadoop_group }} system=yes state=present
+
+- name: ensure user exists
+  user: >
+    name={{ hadoop_user }}
+    group={{ hadoop_group }}
+    home={{ HADOOP_COMMON_USER_HOME }} createhome=yes
+    shell=/bin/bash system=yes generate_ssh_key=yes
+    state=present
+
+- name: own key authorized
+  file: >
+    src={{ HADOOP_COMMON_USER_HOME }}/.ssh/id_rsa.pub
+    dest={{ HADOOP_COMMON_USER_HOME }}/.ssh/authorized_keys
+    owner={{ hadoop_user }} group={{ hadoop_group }} state=link
+
+- name: ensure user is in sudoers
+  lineinfile: >
+    dest=/etc/sudoers state=present 
+    regexp='^%hadoop ALL\=' line='%hadoop ALL=(ALL) NOPASSWD:ALL'
+    validate='visudo -cf %s'
+
+- name: bootstrap script installed
+  template: >
+    src=bootstrap.sh.j2
+    dest={{ HADOOP_COMMON_USER_HOME }}/bootstrap.sh
+    mode=0750 owner={{ hadoop_user }} group={{ hadoop_group }}
+
+- name: check if downloaded and extracted
+  stat: path={{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}
+  register: extracted_hadoop_dir
+
+- name: distribution downloaded
+  get_url: >
+    url={{ hadoop_dist.url }}
+    sha256sum={{ hadoop_dist.sha256sum }}
+    validate_certs=no
+    dest=/tmp
+  when: not extracted_hadoop_dir.stat.exists
+
+- name: distribution extracted
+  shell: >
+    chdir={{ HADOOP_COMMON_USER_HOME }}
+    tar -xzf /tmp/hadoop-{{ HADOOP_COMMON_VERSION }}.tar.gz && chown -R {{ hadoop_user }}:{{ hadoop_group }} hadoop-{{ HADOOP_COMMON_VERSION }}
+  when: not extracted_hadoop_dir.stat.exists
+
+- name: versioned directory symlink created
+  file: >
+    src={{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}
+    dest={{ HADOOP_COMMON_USER_HOME }}/hadoop
+    owner={{ hadoop_user }} group={{ hadoop_group }} state=link
+
+- name: configuration installed
+  template: >
+    src={{ item }}.j2
+    dest={{ HADOOP_COMMON_CONF_DIR }}/{{ item }}
+    mode=0640 owner={{ hadoop_user }} group={{ hadoop_group }}
+  with_items:
+    - hadoop-env.sh
+    - mapred-site.xml
+    - core-site.xml
+    - hdfs-site.xml
+    - yarn-site.xml
+
+- name: data directories created
+  file: >
+    path={{ HADOOP_COMMON_DATA }}/{{ item }}
+    owner={{ hadoop_user }} group={{ hadoop_group }} state=directory
+  with_items:
+    - namenode
+    - datanode
+
+- name: check if namenode is formatted
+  stat: path={{ HADOOP_COMMON_DATA }}/namenode/current/VERSION
+  register: namenode_version_file
+
+- name: namenode formatted
+  shell: >
+    . {{ HADOOP_COMMON_CONF_DIR }}/hadoop-env.sh && hdfs namenode -format
+  sudo_user: "{{ hadoop_user }}"
+  when: not namenode_version_file.stat.exists

@@ -1,0 +1,6 @@
+analyticssingle:
+  build: docker/analytics/single/
+  ports:
+    - "127.0.0.1::22"
+  environment:
+    - GITHUB_USERNAME
