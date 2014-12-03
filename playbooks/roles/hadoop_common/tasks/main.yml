@@ -45,7 +45,7 @@
 
 - name: ssh configured
   template: >
-    src=hadoop_common_user_ssh_config.j2
+    src=hadoop_user_ssh_config.j2
     dest={{ HADOOP_COMMON_USER_HOME }}/.ssh/config
     mode=0600 owner={{ hadoop_common_user }} group={{ hadoop_common_group }}
 
@@ -76,7 +76,7 @@
 - name: distribution extracted
   shell: >
     chdir={{ HADOOP_COMMON_USER_HOME }}
-    tar -xzf /tmp/hadoop-{{ HADOOP_COMMON_VERSION }}.tar.gz && chown -R {{ hadoop_common_user }}:{{ hadoop_common_group }} hadoop-{{ HADOOP_COMMON_VERSION }}
+    tar -xzf /tmp/{{ hadoop_common_dist.filename }} && chown -R {{ hadoop_common_user }}:{{ hadoop_common_group }} hadoop-{{ HADOOP_COMMON_VERSION }}
   when: not extracted_hadoop_dir.stat.exists
 
 - name: versioned directory symlink created
@@ -107,4 +107,16 @@
     sha256sum={{ hadoop_common_protobuf_dist.sha256sum }}
     validate_certs=no
     dest=/tmp
+  when: not native_libs_built.stat.exists
+
+- name: protobuf extracted
+  shell: >
+    chdir=/tmp
+    tar -xzf {{ hadoop_common_protobuf_dist.filename }}
+  when: not native_libs_built.stat.exists
+
+- name: protobuf installed
+  shell: >
+    chdir=/tmp/protobuf-{{ HADOOP_COMMON_PROTOBUF_VERSION }}
+    ./configure --prefix=/usr/local && make && make install
   when: not native_libs_built.stat.exists
