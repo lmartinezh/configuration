@@ -24,7 +24,7 @@
 - name: data directories created
   file: >
     path={{ HADOOP_COMMON_DATA }}/{{ item }}
-    owner={{ hadoop_user }} group={{ hadoop_group }} state=directory
+    owner={{ hadoop_common_user }} group={{ hadoop_common_group }} state=directory
   with_items:
     - namenode
     - datanode
@@ -36,5 +36,5 @@
 - name: namenode formatted
   shell: >
     . {{ HADOOP_COMMON_CONF_DIR }}/hadoop-env.sh && hdfs namenode -format
-  sudo_user: "{{ hadoop_user }}"
+  sudo_user: "{{ hadoop_common_user }}"
   when: not namenode_version_file.stat.exists
