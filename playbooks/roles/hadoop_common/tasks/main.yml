@@ -129,8 +129,14 @@
     dest=/tmp
   when: not native_libs_built.stat.exists
 
-- name: native lib source extracted
-  shell: >
-    chdir=/tmp
-    tar -xzf {{ hadoop_common_native_dist.filename }}
-  when: not native_libs_built.stat.exists
+# - name: native lib source extracted
+#   shell: >
+#     chdir=/tmp
+#     tar -xzf {{ hadoop_common_native_dist.filename }}
+#   when: not native_libs_built.stat.exists
+
+# - name: native lib built
+#   shell: >
+#     chdir=/tmp/release-{{ HADOOP_COMMON_VERSION }}/hadoop-common-project
+    
+#   when: not native_libs_built.stat.exists
