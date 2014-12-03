@@ -55,10 +55,10 @@
     regexp='^%hadoop ALL\=' line='%hadoop ALL=(ALL) NOPASSWD:ALL'
     validate='visudo -cf %s'
 
-- name: bootstrap script installed
+- name: startup script installed
   template: >
-    src=bootstrap.sh.j2
-    dest={{ HADOOP_COMMON_USER_HOME }}/bootstrap.sh
+    src=run-all.sh.j2
+    dest={{ HADOOP_COMMON_USER_HOME }}/run-all.sh
     mode=0750 owner={{ hadoop_common_user }} group={{ hadoop_common_group }}
 
 - name: check if downloaded and extracted
@@ -119,4 +119,18 @@
   shell: >
     chdir=/tmp/protobuf-{{ HADOOP_COMMON_PROTOBUF_VERSION }}
     ./configure --prefix=/usr/local && make && make install
+  when: not native_libs_built.stat.exists
+
+- name: native lib source downloaded
+  get_url: >
+    url={{ hadoop_common_native_dist.url }}
+    sha256sum={{ hadoop_common_native_dist.sha256sum }}
+    validate_certs=no
+    dest=/tmp
+  when: not native_libs_built.stat.exists
+
+- name: native lib source extracted
+  shell: >
+    chdir=/tmp
+    tar -xzf {{ hadoop_common_native_dist.filename }}
   when: not native_libs_built.stat.exists
