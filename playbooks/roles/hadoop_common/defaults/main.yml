@@ -20,13 +20,16 @@ HADOOP_COMMON_USER_HOME: /home/hadoop
 HADOOP_COMMON_HOME: "{{ HADOOP_COMMON_USER_HOME }}/hadoop"
 HADOOP_COMMON_DATA: /var/lib/hadoop/hdfs
 HADOOP_COMMON_CONF_DIR: "{{ HADOOP_COMMON_HOME }}/etc/hadoop"
+HADOOP_COMMON_BUILD_NATIVE_LIBS: 
 
-hadoop_user: hadoop
-hadoop_group: hadoop
 hadoop_common_role_name: hadoop_common
-hadoop_dist:
+hadoop_common_user: hadoop
+hadoop_common_group: hadoop
+hadoop_common_dist:
   url: "https://archive.apache.org/dist/hadoop/core/hadoop-{{ HADOOP_COMMON_VERSION }}/hadoop-{{ HADOOP_COMMON_VERSION }}.tar.gz"
   sha256sum: 3fad58b525a47cf74458d0996564a2151c5a28baa1f92383e7932774deef5023
+hadoop_common_protobuf_dist:
+  url: "https://protobuf.googlecode.com/files/protobuf-2.5.0.tar.gz"
 hadoop_common_java_home: /usr/lib/jvm/java-7-openjdk-amd64
 
 #
@@ -34,6 +37,15 @@ hadoop_common_java_home: /usr/lib/jvm/java-7-openjdk-amd64
 #
 
 hadoop_common_debian_pkgs:
+  - llvm-gcc
+  - build-essential
+  - make
+  - cmake
+  - automake
+  - autoconf
+  - libtool
+  - zlib1g-dev
   - openjdk-7-jdk
+  - maven
 
 hadoop_common_redhat_pkgs: []

@@ -12,4 +12,4 @@ RUN ansible-playbook -c local analytics_single.yml
 
 EXPOSE 22
 USER hadoop
-CMD ["/home/hadoop/bootstrap.sh"]
+CMD ["/home/hadoop/run-all.sh"]
