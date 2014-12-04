@@ -76,7 +76,7 @@
 - name: versioned directory symlink created
   file: >
     src={{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}
-    dest={{ HADOOP_COMMON_USER_HOME }}/hadoop
+    dest={{ HADOOP_COMMON_HOME }}
     owner={{ hadoop_common_user }} group={{ hadoop_common_group }} state=link
 
 - name: configuration installed
@@ -94,7 +94,7 @@
 - name: env vars sourced in bashrc
   lineinfile: >
     dest={{ HADOOP_COMMON_USER_HOME }}/.bashrc state=present
-    regexp="^source {{ HADOOP_COMMON_CONF_DIR }}" line="source {{ HADOOP_COMMON_CONF_DIR }}/hadoop-env.sh"
+    regexp="^source {{ HADOOP_COMMON_CONF_DIR }}/hadoop-env.sh" line="source {{ HADOOP_COMMON_CONF_DIR }}/hadoop-env.sh"
 
 - name: check if native libraries need to be built
   stat: path={{ HADOOP_COMMON_USER_HOME }}/.native_libs_built
