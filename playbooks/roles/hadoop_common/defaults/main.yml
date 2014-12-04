@@ -39,6 +39,7 @@ hadoop_common_native_dist:
   sha256sum: a8e1b49d4e891255d465e9449346ac7fb259bb35dce07d9f0df3b46fac3e9bd0
 hadoop_common_java_home: /usr/lib/jvm/java-7-openjdk-amd64
 hadoop_common_util_library:
+  path: /tmp/edx-analytics-hadoop-util
   repo: https://github.com/mulby/edx-analytics-hadoop-util
   version: master
 

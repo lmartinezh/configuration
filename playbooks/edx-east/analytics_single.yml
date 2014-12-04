@@ -5,4 +5,3 @@
   roles:
     - hadoop_master
     - hive
-    - sqoop

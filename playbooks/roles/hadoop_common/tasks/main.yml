@@ -167,27 +167,27 @@
     owner={{ hadoop_common_user }} group={{ hadoop_common_group }} state=touch
   when: not native_libs_built.stat.exists
 
-# - name: util library source checked out
-#   git: >
-#     dest={{ hadoop_common_util_library.path }} repo={{ hadoop_common_util_library.repo }}
-#     version={{ hadoop_common_util_library.version }}
+- name: util library source checked out
+  git: >
+    dest={{ hadoop_common_util_library.path }} repo={{ hadoop_common_util_library.repo }}
+    version={{ hadoop_common_util_library.version }}
 
-# - name: lib directory created
-#   file: >
-#     path={{ HADOOP_COMMON_USER_HOME }}/lib
-#     owner={{ hadoop_common_user }} group={{ hadoop_common_group }} state=directory
+- name: lib directory created
+  file: >
+    path={{ HADOOP_COMMON_USER_HOME }}/lib
+    owner={{ hadoop_common_user }} group={{ hadoop_common_group }} state=directory
 
-# - name: check if the util library needs to be built
-#   stat: path={{ HADOOP_COMMON_USER_HOME }}/lib/edx-analytics-hadoop-util.jar
-#   register: util_lib_built
+- name: check if the util library needs to be built
+  stat: path={{ HADOOP_COMMON_USER_HOME }}/lib/edx-analytics-hadoop-util.jar
+  register: util_lib_built
 
-# - name: util library built
-#   shell: >
-#     chdir={{ hadoop_common_util_library.path }}
-#     javac -cp `hadoop classpath` org/edx/hadoop/input/ManifestTextInputFormat.java && \
-#     jar cf {{ HADOOP_COMMON_USER_HOME }}/lib/edx-analytics-hadoop-util.jar org/edx/hadoop/input/ManifestTextInputFormat.class && \
-#   sudo_user: "{{ hadoop_common_user }}"
-#   when: not util_lib_built.stat.exists
+- name: util library built
+  shell: >
+    chdir={{ hadoop_common_util_library.path }}
+    javac -cp `hadoop classpath` org/edx/hadoop/input/ManifestTextInputFormat.java && \
+    jar cf {{ HADOOP_COMMON_USER_HOME }}/lib/edx-analytics-hadoop-util.jar org/edx/hadoop/input/ManifestTextInputFormat.class && \
+  sudo_user: "{{ hadoop_common_user }}"
+  when: not util_lib_built.stat.exists
 
 - name: startup script installed
   template: >
