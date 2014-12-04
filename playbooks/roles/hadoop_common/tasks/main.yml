@@ -56,7 +56,7 @@
     validate='visudo -cf %s'
 
 - name: check if downloaded and extracted
-  stat: path={{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}
+  stat: path={{ HADOOP_COMMON_HOME }}
   register: extracted_hadoop_dir
 
 - name: distribution downloaded

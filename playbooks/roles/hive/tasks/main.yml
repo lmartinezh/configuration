@@ -22,7 +22,7 @@
 #
 
 - name: check if downloaded and extracted
-  stat: path={{ HADOOP_COMMON_USER_HOME }}/hive-{{ HIVE_VERSION }}-bin
+  stat: path={{ HIVE_HOME }}
   register: extracted_dir
 
 - name: distribution downloaded
