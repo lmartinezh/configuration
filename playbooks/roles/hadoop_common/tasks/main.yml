@@ -186,7 +186,7 @@
     chdir=/tmp/edx-analytics-hadoop-util
     javac -cp `hadoop classpath` org/edx/hadoop/input/ManifestTextInputFormat.java && \
     jar cf {{ HADOOP_COMMON_USER_HOME }}/lib/edx-analytics-hadoop-util.jar org/edx/hadoop/input/ManifestTextInputFormat.class && \
-  sudo_user: {{ hadoop_common_user }}
+  sudo_user: "{{ hadoop_common_user }}"
   when: not util_lib_built.stat.exists
 
 - name: startup script installed
