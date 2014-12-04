@@ -55,12 +55,6 @@
     regexp='^%hadoop ALL\=' line='%hadoop ALL=(ALL) NOPASSWD:ALL'
     validate='visudo -cf %s'
 
-- name: startup script installed
-  template: >
-    src=run-all.sh.j2
-    dest={{ HADOOP_COMMON_USER_HOME }}/run-all.sh
-    mode=0750 owner={{ hadoop_common_user }} group={{ hadoop_common_group }}
-
 - name: check if downloaded and extracted
   stat: path={{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}
   register: extracted_hadoop_dir
@@ -96,6 +90,11 @@
     - core-site.xml
     - hdfs-site.xml
     - yarn-site.xml
+
+- name: env vars sourced in bashrc
+  lineinfile: >
+    dest={{ HADOOP_COMMON_USER_HOME }}/.bashrc state=present
+    regexp="^source {{ HADOOP_COMMON_CONF_DIR }}" line="source {{ HADOOP_COMMON_CONF_DIR }}/hadoop-env.sh"
 
 - name: check if native libraries need to be built
   stat: path={{ HADOOP_COMMON_USER_HOME }}/.native_libs_built
@@ -166,3 +165,10 @@
   file: >
     path={{ HADOOP_COMMON_USER_HOME }}/.native_libs_built
     state=touch
+  when: not native_libs_built.stat.exists
+
+- name: startup script installed
+  template: >
+    src=run-all.sh.j2
+    dest={{ HADOOP_COMMON_USER_HOME }}/run-all.sh
+    mode=0750 owner={{ hadoop_common_user }} group={{ hadoop_common_group }}
