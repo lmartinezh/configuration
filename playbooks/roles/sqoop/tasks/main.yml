@@ -22,8 +22,8 @@
 #
 
 - name: check if downloaded and extracted
-  stat: path={{ SQOOP_HOME }}
-  register: extracted_dir
+  stat: path={{ HADOOP_COMMON_USER_HOME }}/.sqoop_installed
+  register: installed
 
 - name: distribution downloaded
   get_url: >
@@ -31,37 +31,13 @@
     sha256sum={{ sqoop_dist.sha256sum }}
     validate_certs=no
     dest=/tmp
-  when: not extracted_dir.stat.exists
+  when: not installed.stat.exists
 
 - name: distribution extracted
   shell: >
     chdir={{ HADOOP_COMMON_USER_HOME }}
     tar -xzf /tmp/{{ sqoop_dist.filename }} && chown -R {{ hadoop_common_user }}:{{ hadoop_common_group }} sqoop-{{ SQOOP_VERSION }}.bin__hadoop-2.0.4-alpha
-  when: not extracted_dir.stat.exists
-
-- name: mysql connector distribution downloaded
-  get_url: >
-    url={{ sqoop_mysql_connector_dist.url }}
-    sha256sum={{ sqoop_mysql_connector_dist.sha256sum }}
-    validate_certs=no
-    dest=/tmp
-  when: not extracted_dir.stat.exists
-
-- name: mysql connector distribution extracted
-  shell: >
-    chdir=/tmp
-    tar -xzf /tmp/{{ sqoop_mysql_connector_dist.filename }}
-  when: not extracted_dir.stat.exists
-
-- name: sqoop lib exists
-  file: >
-    path=sqoop-{{ SQOOP_VERSION }}.bin__hadoop-2.0.4-alpha/lib
-    owner={{ hadoop_common_user }} group={{ hadoop_common_group }} state=directory
-
-- name: mysql connector installed
-  shell: >
-    cp /tmp/mysql-connector-java-{{ SQOOP_MYSQL_CONNECTOR_VERSION }}/mysql-connector-java-{{ SQOOP_MYSQL_CONNECTOR_VERSION }}-bin.jar sqoop-{{ SQOOP_VERSION }}.bin__hadoop-2.0.4-alpha/lib/
-  when: not extracted_dir.stat.exists
+  when: not installed.stat.exists
 
 - name: versioned directory symlink created
   file: >
@@ -69,10 +45,35 @@
     dest={{ SQOOP_HOME }}
     owner={{ hadoop_common_user }} group={{ hadoop_common_group }} state=link
 
+- name: mysql connector distribution downloaded
+  get_url: >
+    url={{ sqoop_mysql_connector_dist.url }}
+    sha256sum={{ sqoop_mysql_connector_dist.sha256sum }}
+    validate_certs=no
+    dest=/tmp
+  when: not installed.stat.exists
+
+- name: mysql connector distribution extracted
+  shell: >
+    chdir=/tmp
+    tar -xzf /tmp/{{ sqoop_mysql_connector_dist.filename }}
+  when: not installed.stat.exists
+
+- name: sqoop lib exists
+  file: >
+    path={{ SQOOP LIB }}
+    owner={{ hadoop_common_user }} group={{ hadoop_common_group }} state=directory
+
+- name: mysql connector installed
+  shell: >
+    chdir=/tmp/mysql-connector-java-{{ SQOOP_MYSQL_CONNECTOR_VERSION }}
+    cp mysql-connector-java-{{ SQOOP_MYSQL_CONNECTOR_VERSION }}-bin.jar {{ SQOOP LIB }}
+  when: not installed.stat.exists
+
 - name: configuration installed
   template: >
     src={{ item }}.j2
-    dest={{ HADOOP_COMMON_CONF_DIR }}/{{ item }}
+    dest={{ SQOOP_CONF }}/{{ item }}
     mode=0640 owner={{ hadoop_common_user }} group={{ hadoop_common_group }}
   with_items:
     - sqoop-env.sh
@@ -80,4 +81,4 @@
 - name: env vars sourced in bashrc
   lineinfile: >
     dest={{ HADOOP_COMMON_USER_HOME }}/.bashrc state=present
-    regexp="^source {{ HADOOP_COMMON_CONF_DIR }}/sqoop-env.sh" line="source {{ HADOOP_COMMON_CONF_DIR }}/sqoop-env.sh"
+    regexp="^source {{ SQOOP_CONF }}/sqoop-env.sh" line="source {{ SQOOP_CONF }}/sqoop-env.sh"
