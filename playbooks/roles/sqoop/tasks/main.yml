@@ -61,7 +61,7 @@
 
 - name: sqoop lib exists
   file: >
-    path={{ SQOOP LIB }}
+    path={{ SQOOP_LIB }}
     owner={{ hadoop_common_user }} group={{ hadoop_common_group }} state=directory
 
 - name: mysql connector installed
