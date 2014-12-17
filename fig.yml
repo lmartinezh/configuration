@@ -4,3 +4,4 @@ analyticssingle:
     - "127.0.0.1::22"
   environment:
     - GITHUB_USERNAME
+    - "MR_CLUSTER_ROLES=master,core"

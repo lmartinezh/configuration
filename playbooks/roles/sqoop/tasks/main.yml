@@ -22,7 +22,7 @@
 #
 
 - name: check if downloaded and extracted
-  stat: path={{ HADOOP_COMMON_USER_HOME }}/.sqoop_installed
+  stat: path={{ SQOOP_LIB }}/mysql-connector-java-{{ SQOOP_MYSQL_CONNECTOR_VERSION }}-bin.jar
   register: installed
 
 - name: distribution downloaded
@@ -67,7 +67,8 @@
 - name: mysql connector installed
   shell: >
     chdir=/tmp/mysql-connector-java-{{ SQOOP_MYSQL_CONNECTOR_VERSION }}
-    cp mysql-connector-java-{{ SQOOP_MYSQL_CONNECTOR_VERSION }}-bin.jar {{ SQOOP LIB }}
+    cp mysql-connector-java-{{ SQOOP_MYSQL_CONNECTOR_VERSION }}-bin.jar {{ SQOOP_LIB }} &&
+    chown {{ hadoop_common_user }}:{{ hadoop_common_group }} {{ SQOOP_LIB }}/mysql-connector-java-{{ SQOOP_MYSQL_CONNECTOR_VERSION }}-bin.jar
   when: not installed.stat.exists
 
 - name: configuration installed

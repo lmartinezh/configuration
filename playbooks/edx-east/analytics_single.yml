@@ -5,3 +5,7 @@
   roles:
     - hadoop_master
     - hive
+    - sqoop
+  post_tasks:
+    - name: install mysql locally
+      apt: pkg=mysql-server-5.5 state=present

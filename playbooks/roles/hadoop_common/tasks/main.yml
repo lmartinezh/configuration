@@ -181,13 +181,13 @@
   stat: path={{ HADOOP_COMMON_USER_HOME }}/lib/edx-analytics-hadoop-util.jar
   register: util_lib_built
 
-# - name: util library built
-#   shell: >
-#     chdir={{ hadoop_common_util_library.path }}
-#     javac -cp `hadoop classpath` org/edx/hadoop/input/ManifestTextInputFormat.java && \
-#     jar cf {{ HADOOP_COMMON_USER_HOME }}/lib/edx-analytics-hadoop-util.jar org/edx/hadoop/input/ManifestTextInputFormat.class && \
-#   sudo_user: "{{ hadoop_common_user }}"
-#   when: not util_lib_built.stat.exists
+- name: util library built
+  shell: >
+    chdir={{ hadoop_common_util_library.path }}
+    javac -cp `{{ HADOOP_COMMON_HOME }}/bin/hadoop classpath` org/edx/hadoop/input/ManifestTextInputFormat.java &&
+    jar cf {{ HADOOP_COMMON_USER_HOME }}/lib/edx-analytics-hadoop-util.jar org/edx/hadoop/input/ManifestTextInputFormat.class &&
+    chown {{ hadoop_common_user }}:{{ hadoop_common_group }} {{ HADOOP_COMMON_USER_HOME }}/lib/edx-analytics-hadoop-util.jar
+  when: not util_lib_built.stat.exists
 
 - name: startup script installed
   template: >
